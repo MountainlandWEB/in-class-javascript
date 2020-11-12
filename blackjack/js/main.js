@@ -6,15 +6,18 @@ let deckPromise = fetch(
   'https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1'
 ).then((response) => response.json());
 
-function getCards(deckId, cardCount) {
-  return fetch(
+async function getCards(deckId, cardCount) {
+  let response = await fetch(
     `https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=${cardCount}`
-  ).then((response) => response.json());
+  );
+  return response.json();
 }
 
-deckPromise.then((deck) => {
-  getCards(deck.deck_id, 2).then((data) => printCards(data.cards, player1));
-  getCards(deck.deck_id, 2).then((data) => printCards(data.cards, player2));
+deckPromise.then(async (deck) => {
+  let data1 = await getCards(deck.deck_id, 2);
+  let data2 = await getCards(deck.deck_id, 2);
+  printCards(data1.cards, player1);
+  printCards(data2.cards, player2);
 });
 
 function printCards(cards, playerId) {
@@ -28,10 +31,8 @@ function printCards(cards, playerId) {
   });
 }
 
-function hitMe(playerId) {
-  deckPromise.then((deck) => {
-    getCards(deck.deck_id, 1).then((data) => {
-      printCards(data.cards, playerId);
-    });
-  });
+async function hitMe(playerId) {
+  let deck = await deckPromise;
+  let data = await getCards(deck.deck_id, 1);
+  printCards(data.cards, playerId);
 }
